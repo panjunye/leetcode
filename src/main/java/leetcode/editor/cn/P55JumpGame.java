@@ -36,9 +36,6 @@
 
 package leetcode.editor.cn;
 
-import leetcode.editor.Assertions;
-
-import java.util.HashMap;
 import java.util.Map;
 
 import static leetcode.editor.Assertions.isEqual;
@@ -47,10 +44,10 @@ import static leetcode.editor.Assertions.isEqual;
 public class P55JumpGame {
     public static void main(String[] args) {
         Solution solution = new P55JumpGame().new Solution();
-//        isEqual(true, solution.canJump(new int[]{2, 3, 1, 1, 4}));
-//        isEqual(false, solution.canJump(new int[]{3, 2, 1, 0, 4}));
-//        isEqual(true, solution.canJump(new int[]{0}));
-//        isEqual(true, solution.canJump(new int[]{2, 5, 0, 0}));
+        isEqual(true, solution.canJump(new int[]{2, 3, 1, 1, 4}));
+        isEqual(false, solution.canJump(new int[]{3, 2, 1, 0, 4}));
+        isEqual(true, solution.canJump(new int[]{0}));
+        isEqual(true, solution.canJump(new int[]{2, 5, 0, 0}));
         isEqual(false, solution.canJump(new int[]{5, 4, 3, 2, 1, 0, 0}));
     }
 
@@ -60,29 +57,14 @@ public class P55JumpGame {
         private Map<Integer, Boolean> jumpMap;
 
         public boolean canJump(int[] nums) {
-            if (nums == null || nums.length == 0) {
-                return false;
-            }
-            return canJump(nums, 0);
-        }
-
-        public boolean canJump(int[] nums, int i) {
-            if (jumpMap.containsKey(i)) {
-                return false;
-            }
-            int maxStep = nums[i];
-            if (i + maxStep >= nums.length - 1) {
-                return true;
-            }
-            for (int j = maxStep; j >= 1; j--) {
-                int next = i + j;
-                if (canJump(nums, next)) {
-                    return true;
-                } else {
-                    jumpMap.put(next, false);
+            int maxReach = 0;
+            for (int i = 0; i < nums.length; i++) {
+                if (i > maxReach) {
+                    return false;
                 }
+                maxReach = Math.max(maxReach, i + nums[i]);
             }
-            return false;
+            return maxReach >= nums.length - 1;
         }
     }
 //leetcode submit region end(Prohibit modification and deletion)
