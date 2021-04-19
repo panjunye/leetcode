@@ -52,24 +52,24 @@ public class P135Candy {
     class Solution {
         public int candy(int[] ratings) {
             int[] candies = new int[ratings.length];
-            Arrays.fill(candies, 1);
             for (int i = 0; i < ratings.length; ++i) {
-                candynizer(ratings, candies, i);
-            }
-            return Arrays.stream(candies).sum();
-        }
-
-        private void candynizer(int[] ratings, int[] candies, int i) {
-            if (i > 0) {
-                if (ratings[i] > ratings[i - 1]) {
+                if (i > 0 && ratings[i] > ratings[i - 1]) {
                     candies[i] = candies[i - 1] + 1;
-                } else if (ratings[i] < ratings[i - 1]) {
+                } else {
                     candies[i] = 1;
-                    for (int j = i; j >= 1 && ratings[j - 1] > ratings[j] && candies[j - 1] == candies[j]; --j) {
-                        candies[j - 1] = candies[j - 1] + 1;
-                    }
                 }
             }
+            int right = 0;
+            int sum = 0;
+            for (int j = ratings.length - 1; j >= 0; j--) {
+                if (j < ratings.length - 1 && ratings[j] > ratings[j + 1]) {
+                    right = right + 1;
+                } else {
+                    right = 1;
+                }
+                sum += Math.max(candies[j], right);
+            }
+            return sum;
         }
     }
 //leetcode submit region end(Prohibit modification and deletion)
