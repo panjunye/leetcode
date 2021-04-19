@@ -43,33 +43,18 @@ public class P45JumpGameIi {
         private Map<Integer, Integer> map;
 
         public int jump(int[] nums) {
-            map = new HashMap<>(nums.length * 2);
-            return step(nums, 0);
-        }
-
-        public int step(int[] nums, int i) {
-            if(map.containsKey(i)){
-                return map.get(i);
-            }
-            if (i >= nums.length - 1) {
-                return 0;
-            }
-            if (i + nums[i] >= nums.length - 1) {
-                return 1;
-            }
-            if (nums[i] == 0) {
-                return Integer.MAX_VALUE - 1;
-            }
-            int min = Integer.MAX_VALUE - 1;
-            for (int j = nums[i]; j >= 1; j--) {
-                int step = step(nums, i + j);
-                if (step < min) {
-                    min = step;
+            int length = nums.length;
+            int end = 0;
+            int maxPosition = 0;
+            int steps = 0;
+            for (int i = 0; i < length - 1; i++) {
+                maxPosition = Math.max(maxPosition, i + nums[i]);
+                if (i == end) {
+                    steps++;
+                    end = maxPosition;
                 }
             }
-            int r =  min + 1;
-            map.put(i,r);
-            return r;
+            return steps;
         }
     }
 //leetcode submit region end(Prohibit modification and deletion)
