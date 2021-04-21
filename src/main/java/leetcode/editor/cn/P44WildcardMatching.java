@@ -71,7 +71,9 @@ public class P44WildcardMatching {
         Assertions.isEqual(true, solution.isMatch("aa", "*"));
         Assertions.isEqual(false, solution.isMatch("cb", "?a"));
         Assertions.isEqual(true, solution.isMatch("adceb", "*a*b"));
-        Assertions.isEqual(true, solution.isMatch("acdcb", "a*c?b"));
+        Assertions.isEqual(false, solution.isMatch("acdcb", "a*c?b"));
+        Assertions.isEqual(true, solution.isMatch("adceb", "*a*b"));
+        Assertions.isEqual(true, solution.isMatch("", "******"));
     }
 
     //leetcode submit region begin(Prohibit modification and deletion)
@@ -88,7 +90,7 @@ public class P44WildcardMatching {
             if (i == s.length() && j == p.length()) {
                 return true;
             }
-            if ((i < s.length() && j == p.length()) || (i == s.length() && j < p.length())) {
+            if (i < s.length() && j == p.length()) {
                 return false;
             }
             if (p.charAt(j) != '*') {
@@ -107,8 +109,7 @@ public class P44WildcardMatching {
                     return false;
                 }
                 i = k + 1;
-                j = j + 1;
-                if (isMatch(s, p, i, j)) {
+                if (isMatch(s, p, i, j + 1)) {
                     return true;
                 }
             }
