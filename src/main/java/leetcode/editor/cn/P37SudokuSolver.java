@@ -87,75 +87,65 @@ public class P37SudokuSolver {
     //leetcode submit region begin(Prohibit modification and deletion)
     class Solution {
 
-        private boolean[] vis;
-
         public void solveSudoku(char[][] board) {
             int length = board.length;
-            List<Integer>[] slots = new List[length];
-            List<Character>[] remains = new List[length];
-            boolean[] vir = new boolean[length + 1];
-            vis = new boolean[board.length + 1];
+            int[] remain = new int[length];
+            List<Integer> slots = new ArrayList<>(length * length);
+            Arrays.fill(remain, 9);
             for (int i = 0; i < length; i++) {
-                slots[i] = new ArrayList<>();
-                remains[i] = new ArrayList<>();
-                Arrays.fill(vir, false);
                 for (int j = 0; j < length; j++) {
                     char c = board[i][j];
                     if (c == '.') {
-                        slots[i].add(j);
-                    } else {
-                        vir[c - '0'] = true;
-                    }
-                }
-                for (int k = 1; k <= length; k++) {
-                    if (!vir[k]) {
-                        remains[i].add((char) (k + '0'));
-                    }
-                }
-            }
-            putNextRow(board, slots, remains, 0, length);
-        }
-
-        private boolean putNextRow(char[][] board, List<Integer>[] slotArr, List<Character>[] remainArr, int rowIndex, int length) {
-            if (rowIndex == length) {
-                return true;
-            }
-            boolean[] nvir = new boolean[remainArr[rowIndex].size()];
-            return putNextCol(board, slotArr, remainArr, nvir, rowIndex, 0, length);
-        }
-
-        private boolean putNextCol(char[][] board, List<Integer>[] slotArr, List<Character>[] remainArr, boolean[] nvir, int rowIndex, int slotIndex, int length) {
-            List<Integer> slots = slotArr[rowIndex];
-            if (slotIndex == slots.size()) {
-                return putNextRow(board, slotArr, remainArr, rowIndex + 1, length);
-            } else {
-                int colIndex = slots.get(slotIndex);
-                List<Character> remains = remainArr[rowIndex];
-                for (int i = 0; i < remains.size(); i++) {
-                    if (nvir[i]) {
+                        slots.add(length * i + j);
                         continue;
                     }
-                    char next = remains.get(i);
-                    if (isOK(board, rowIndex, colIndex, next)) {
-                        board[rowIndex][colIndex] = next;
-                        nvir[i] = true;
-                        if (putNextCol(board, slotArr, remainArr, nvir, rowIndex, slotIndex + 1, length)) {
+                    int k = c - '1';
+                    remain[k]--;
+                }
+            }
+            putNext(board, remain, slots, 0);
+        }
+
+        private boolean putNext(char[][] board, int[] remain, List<Integer> slots, int slotIndex) {
+            if (slotIndex == slots.size()) {
+                return true;
+            }
+            int length = board.length;
+            int index = slots.get(slotIndex);
+            int row = index / length;
+            int col = index % length;
+            for (int i = 0; i < length; i++) {
+                if (remain[i] > 0) {
+                    char c = (char) ('1' + i);
+                    if (isOk(board, row, col, c)) {
+                        remain[i]--;
+                        board[row][col] = c;
+                        if (putNext(board, remain, slots, slotIndex + 1)) {
                             return true;
                         }
                     }
-                    board[rowIndex][colIndex] = '.';
-                    nvir[i] = false;
+                    board[row][col] = '.';
+                    remain[i]++;
                 }
             }
             return false;
         }
 
-        private boolean isOK(char[][] board, int rowIndex, int colIndex, char next) {
+        private boolean isOk(char[][] board, int row, int col, char c) {
+            int smallRow = (row / 3) * 3;
+            int smallCol = (col / 3) * 3;
+            for (int i = smallRow; i < smallRow + 3; i++) {
+                for (int j = smallCol; j < smallCol + 3; j++) {
+                    if (board[i][j] == c) {
+                        return false;
+                    }
+                }
+            }
             for (int i = 0; i < board.length; i++) {
-                if (board[rowIndex][i] == next) {
+                if (board[row][i] == c) {
                     return false;
                 }
-                if (board[i][colIndex] == next) {
+                if (board[i][col] == c) {
                     return false;
                 }
             }
