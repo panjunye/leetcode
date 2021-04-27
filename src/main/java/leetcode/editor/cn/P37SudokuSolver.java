@@ -86,11 +86,15 @@ public class P37SudokuSolver {
 
     //leetcode submit region begin(Prohibit modification and deletion)
     class Solution {
+
+        private boolean[] vis;
+
         public void solveSudoku(char[][] board) {
             int length = board.length;
             List<Integer>[] slots = new List[length];
             List<Character>[] remains = new List[length];
             boolean[] vir = new boolean[length + 1];
+            vis = new boolean[board.length + 1];
             for (int i = 0; i < length; i++) {
                 slots[i] = new ArrayList<>();
                 remains[i] = new ArrayList<>();
@@ -112,39 +116,49 @@ public class P37SudokuSolver {
             putNextRow(board, slots, remains, 0, length);
         }
 
-        private void putNextRow(char[][] board, List<Integer>[] slotArr, List<Character>[] remainArr, int rowIndex, int length) {
+        private boolean putNextRow(char[][] board, List<Integer>[] slotArr, List<Character>[] remainArr, int rowIndex, int length) {
             if (rowIndex == length) {
-                return;
+                return true;
             }
-            putNextCol(board, slotArr, remainArr, rowIndex, 0, length);
+            boolean[] nvir = new boolean[remainArr[rowIndex].size()];
+            return putNextCol(board, slotArr, remainArr, nvir, rowIndex, 0, length);
         }
 
-        private void putNextCol(char[][] board, List<Integer>[] slotArr, List<Character>[] remainArr, int rowIndex, int slotIndex, int length) {
+        private boolean putNextCol(char[][] board, List<Integer>[] slotArr, List<Character>[] remainArr, boolean[] nvir, int rowIndex, int slotIndex, int length) {
             List<Integer> slots = slotArr[rowIndex];
             if (slotIndex == slots.size()) {
-                putNextRow(board, slotArr, remainArr, rowIndex + 1, length);
+                return putNextRow(board, slotArr, remainArr, rowIndex + 1, length);
             } else {
                 int colIndex = slots.get(slotIndex);
                 List<Character> remains = remainArr[rowIndex];
-                boolean[] nvir = new boolean[remains.size()];
                 for (int i = 0; i < remains.size(); i++) {
                     if (nvir[i]) {
                         continue;
                     }
-                    board[rowIndex][colIndex] = remains.get(i);
-                    if (isOK(board, rowIndex, colIndex)) {
+                    char next = remains.get(i);
+                    if (isOK(board, rowIndex, colIndex, next)) {
+                        board[rowIndex][colIndex] = next;
                         nvir[i] = true;
-                        board[rowIndex][colIndex] = remains.get(i);
-                        putNextCol(board, slotArr, remainArr, rowIndex, slotIndex + 1, length);
-                    } else {
-                        nvir[i] = false;
+                        if (putNextCol(board, slotArr, remainArr, nvir, rowIndex, slotIndex + 1, length)) {
+                            return true;
+                        }
                     }
+                    board[rowIndex][colIndex] = '.';
+                    nvir[i] = false;
                 }
             }
-
+            return false;
         }
 
-        private boolean isOK(char[][] board, int rowIndex, int colIndex) {
+        private boolean isOK(char[][] board, int rowIndex, int colIndex, char next) {
+            for (int i = 0; i < board.length; i++) {
+                if (board[rowIndex][i] == next) {
+                    return false;
+                }
+                if (board[i][colIndex] == next) {
+                    return false;
+                }
+            }
             return true;
         }
     }
