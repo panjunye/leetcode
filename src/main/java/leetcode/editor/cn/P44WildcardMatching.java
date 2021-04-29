@@ -73,6 +73,9 @@ public class P44WildcardMatching {
         Assertions.isFalse(solution.isMatch("acdcb", "a*c?b"));
         Assertions.isTrue(solution.isMatch("", "***"));
         Assertions.isFalse(solution.isMatch("aa", "a"));
+        Assertions.isTrue(solution.isMatch("abcabczzzde", "*abc???de*"));
+        Assertions.isTrue(solution.isMatch("ab", "*?*?*"));
+
     }
 
     //leetcode submit region begin(Prohibit modification and deletion)
@@ -82,17 +85,31 @@ public class P44WildcardMatching {
             int col = s.length() + 1;
             boolean[][] board = new boolean[row][col];
             board[0][0] = true;
+            int k = 0;
+            boolean isFirstK = true;
             for (int i = 1; i < row; i++) {
-                for (int j = 0; j < col; j++) {
+                isFirstK = true;
+                for (int j = k; j < col; j++) {
                     if (p.charAt(i - 1) == '*') {
-                        if (board[i - 1][j]) {
+                        if (board[i - 1][0]) {
+                            Arrays.fill(board[i], 0, col, true);
+                            k = 0;
+                        } else if (board[i - 1][j]) {
                             Arrays.fill(board[i], j, col, true);
+                            k = j;
+                        } else if (j > 0 && board[i - 1][j - 1]) {
+                            Arrays.fill(board[i], j - 1, col, true);
+                            k = j - 1;
                         }
-                        if (j > 0 && board[i - 1][j - 1]) {
-                            board[i][j - 1] = true;
-                        }
+                        break;
                     } else if (j > 0 && (p.charAt(i - 1) == s.charAt(j - 1) || p.charAt(i - 1) == '?')) {
-                        board[i][j] = board[i - 1][j - 1];
+                        if (board[i - 1][j - 1]) {
+                            board[i][j] = true;
+                            if (isFirstK) {
+                                k = j;
+                                isFirstK = false;
+                            }
+                        }
                     }
                 }
             }
