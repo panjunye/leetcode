@@ -63,66 +63,40 @@ package leetcode.editor.cn;
 
 import leetcode.editor.Assertions;
 
+import java.util.Arrays;
+
 //java:通配符匹配
 public class P44WildcardMatching {
     public static void main(String[] args) {
         Solution solution = new P44WildcardMatching().new Solution();
-        Assertions.isEqual(false, solution.isMatch("aa", "a"));
-        Assertions.isEqual(true, solution.isMatch("aa", "*"));
-        Assertions.isEqual(false, solution.isMatch("cb", "?a"));
-        Assertions.isEqual(true, solution.isMatch("adceb", "*a*b"));
-        Assertions.isEqual(false, solution.isMatch("acdcb", "a*c?b"));
-        Assertions.isEqual(true, solution.isMatch("adceb", "*a*b"));
-        Assertions.isEqual(true, solution.isMatch("", "******"));
+        Assertions.isTrue(solution.isMatch("adceb", "*a*b"));
+        Assertions.isFalse(solution.isMatch("acdcb", "a*c?b"));
+        Assertions.isTrue(solution.isMatch("", "***"));
+        Assertions.isFalse(solution.isMatch("aa", "a"));
     }
 
     //leetcode submit region begin(Prohibit modification and deletion)
     class Solution {
         public boolean isMatch(String s, String p) {
-            return isMatch(s, p, 0, 0);
-        }
-
-        public boolean isMatch(String s, String p, int i, int j) {
-            while (i < s.length() && j < p.length() && (s.charAt(i) == p.charAt(j) || p.charAt(j) == '?')) {
-                ++i;
-                ++j;
-            }
-            if (i == s.length() && j == p.length()) {
-                return true;
-            }
-            if (i < s.length() && j == p.length()) {
-                return false;
-            }
-            if (p.charAt(j) != '*') {
-                return false;
-            }
-            while (j < p.length() && p.charAt(j) == '*') {
-                j++;
-            }
-            if (j == p.length()) {
-                return true;
-            }
-            char cp = p.charAt(j);
-            while (j < p.length()) {
-                int k = findNext(s, i, cp);
-                if (k == -1) {
-                    return false;
-                }
-                i = k + 1;
-                if (isMatch(s, p, i, j + 1)) {
-                    return true;
+            int row = p.length() + 1;
+            int col = s.length() + 1;
+            boolean[][] board = new boolean[row][col];
+            board[0][0] = true;
+            for (int i = 1; i < row; i++) {
+                for (int j = 0; j < col; j++) {
+                    if (p.charAt(i - 1) == '*') {
+                        if (board[i - 1][j]) {
+                            Arrays.fill(board[i], j, col, true);
+                        }
+                        if (j > 0 && board[i - 1][j - 1]) {
+                            board[i][j - 1] = true;
+                        }
+                    } else if (j > 0 && (p.charAt(i - 1) == s.charAt(j - 1) || p.charAt(i - 1) == '?')) {
+                        board[i][j] = board[i - 1][j - 1];
+                    }
                 }
             }
-            return false;
-        }
-
-        private int findNext(String s, int start, int c) {
-            for (int i = start; i < s.length(); i++) {
-                if (s.charAt(i) == c || c == '?') {
-                    return i;
-                }
-            }
-            return -1;
+            return board[row - 1][col - 1];
         }
     }
 //leetcode submit region end(Prohibit modification and deletion)
